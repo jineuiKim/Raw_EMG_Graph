@@ -4,40 +4,26 @@ import numpy as np
 
 dataset = pd.read_csv("../emgraw.csv")
 
+num_channels = 8
 
-t = dataset.iloc[:,0]
-g = dataset.iloc[:,-1]
-prev_number = None
-prev_count = 0
+channels = ['Channel 1', 'Channel 2', 'Channel 3', 'Channel 4', 'Channel 5', 'Channel 6', 'Channel 7', 'Channel 8']
+x = np.arange(len(channels))
+std_devs = []
+rms_value = []
 
-count = 0
 #gesture 1 by channel
-c1 = dataset.iloc[500:1600,1]
-c1_avg = np.sqrt(np.mean(c1**2))
-c2 = dataset.iloc[500:1600,2]
-c2_Avg = np.sqrt(np.mean(c2**2))
-c3 = dataset.iloc[500:1600,3]
-c3_Avg = np.sqrt(np.mean(c3**2))
-c4 = dataset.iloc[500:1600,4]
-c4_Avg = np.sqrt(np.mean(c4**2))
-c5 = dataset.iloc[500:1600,5]
-c5_avg = np.sqrt(np.mean(c5**2))
-c6 = dataset.iloc[500:1600,6]
-c6_Avg = np.sqrt(np.mean(c6**2))
-c7 = dataset.iloc[500:1600,7]
-c7_Avg = np.sqrt(np.mean(c7**2))
-c8 = dataset.iloc[500:1600,8]
-c8_Avg = np.sqrt(np.mean(c8**2))
+for i in range(num_channels):
+    standard_deviation = np.std(dataset.iloc[500:1600, i+1])
+    std_devs.append(standard_deviation)
 
+for i in range(num_channels):
+    rms = np.sqrt(np.mean(dataset.iloc[500:1600,i+1]**2))
+    rms_value.append(rms)
 
-variables = ['C1', 'C2', 'C3', 'C4', 'C5','C6','C7', 'C8']
-amplitude = [c1_avg, c2_Avg, c3_Avg, c4_Avg, c5_avg, c6_Avg, c7_Avg, c8_Avg ]
+plt.bar(x, rms_value, yerr=std_devs, capsize=5, align='center', alpha=0.7)
 
-plt.bar(variables, amplitude)
-
-plt.xlabel('Channel')
-plt.ylabel('Amplitude')
-plt.title('Gesture 1')
-
-# Show the plot
+plt.xticks(x, channels)
+plt.xlabel('Channels')
+plt.ylabel('RMS Value')
+plt.title('RMS Values with Error Bars for EMG Channels')
 plt.show()

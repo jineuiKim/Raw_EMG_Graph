@@ -1,20 +1,24 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Sample EMG data (replace with your actual data)
-emg_data = np.random.rand(8, 8)  # Replace with your EMG data (8x8 grid)
+# Sample data
+rms_values = [10, 15, 8, 12]  # Replace with your RMS values
+std_devs = [1, 1.5, 0.8, 1.2]  # Replace with your standard deviations
 
-# Create a colormap for muscle activity
-cmap = plt.get_cmap('viridis')  # You can choose other colormaps
+# Variables (e.g., channels)
+variables = ['Channel 1', 'Channel 2', 'Channel 3', 'Channel 4']
 
-# Plot the muscle activity color map
-plt.imshow(emg_data, cmap=cmap, origin='lower', interpolation='none', aspect='auto')
-plt.colorbar(label='Muscle Activity')
+# Create an array of x values for the bars
+x = np.arange(len(variables))
+print(x)
+# Create a bar graph with error bars
+plt.bar(x, rms_values, yerr=std_devs, capsize=5, align='center', alpha=0.7)
 
-# Customize the appearance of the plot
-plt.title('Muscle Activity Color Map')
-plt.xlabel('X Axis')
-plt.ylabel('Y Axis')
+# Set x-axis labels and title
+plt.xticks(x, variables)
+plt.xlabel('Channels')
+plt.ylabel('RMS Value')
+plt.title('RMS Values with Error Bars for EMG Channels')
 
+# Show the plot
 plt.show()
-
