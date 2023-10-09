@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-dataset = pd.read_csv("raw_EMG.csv")
+dataset = pd.read_csv("../raw_EMG.csv")
 print(dataset)
 
 t = dataset.iloc[:,0]
