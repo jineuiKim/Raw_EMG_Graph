@@ -7,7 +7,7 @@ from matplotlib.animation import FuncAnimation
 dataset = pd.read_csv("../raw_EMG.csv")
 # Extract the time values from the first column of the dataset
 t = dataset.iloc[:, 0]
-
+print(len(t))
 # Define colors for different channels
 colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'orange']
 
@@ -43,9 +43,9 @@ channel_data = [emg_data.iloc[:, i].values for i in range(num_channels)]
 
 # Function to update the plot with new data
 step = 100
-window_size = int(10 * sampling_rate)  # 20-second window size
+window_size = int(5 * sampling_rate)
 data_buffer = [np.zeros(window_size) for _ in range(num_channels)]  # Circular buffer
-max_x_limit = 60  # Extend the maximum x-axis limit to 20 seconds
+max_x_limit = 1000  # Set the maximum x-axis limit to 20 seconds
 
 def update_plot(i):
     start_index = i * step
@@ -68,13 +68,10 @@ def animate(frame):
             lines[j].set_data(t[:window_size] / 1000, data_buffer[j])
             subplots[j].set_xlim(t[0] / 1000, t[window_size - 1] / 1000)
 
-# Calculate the number of frames required for a minimum display duration of 10 seconds
-min_display_duration = 10  # Minimum display duration in seconds
-num_frames = int(min_display_duration * sampling_rate / step)
-
 # Create an animation
-ani = FuncAnimation(plt.gcf(), animate, frames=num_frames, interval=50)
+ani = FuncAnimation(plt.gcf(), animate, frames=len(t) // step, interval=50)
 
 # Show the plot
 plt.tight_layout()
 plt.show()
+

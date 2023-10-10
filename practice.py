@@ -7,7 +7,7 @@ from matplotlib.animation import FuncAnimation
 dataset = pd.read_csv("../raw_EMG.csv")
 # Extract the time values from the first column of the dataset
 t = dataset.iloc[:, 0]
-
+print(len(t))
 # Define colors for different channels
 colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'orange']
 
@@ -43,37 +43,28 @@ channel_data = [emg_data.iloc[:, i].values for i in range(num_channels)]
 
 # Function to update the plot with new data
 step = 100
-window_size = int(10 * sampling_rate)  # 20-second window size
+window_size = int(20 * sampling_rate)  # 20-second window size
 data_buffer = [np.zeros(window_size) for _ in range(num_channels)]  # Circular buffer
-max_x_limit = 60  # Extend the maximum x-axis limit to 20 seconds
 
 def update_plot(i):
-    start_index = i * step
-    end_index = start_index + window_size
+    # Determine the start and end indices for the data to be plotted
+    start_index = max(0, i * step)
+    end_index = min((i + 1) * step, len(t))
 
     for j in range(num_channels):
-        data_buffer[j] = channel_data[j][start_index:end_index]  # Update buffer
-        lines[j].set_data(t[start_index:end_index] / 1000, data_buffer[j])
-        subplots[j].set_xlim(t[start_index] / 1000, t[end_index - 1] / 1000)
-        subplots[j].set_ylim(-1, 1)
+        data_buffer[j] = np.roll(data_buffer[j], -step)  # Shift the buffer
+        data_buffer[j][-step:] = channel_data[j][start_index:end_index]  # Update buffer
+        lines[j].set_data(t[:window_size] / 1000, data_buffer[j])
 
 # Function to handle animation frame updates
 def animate(frame):
-    if frame * step + window_size < len(t):
+    if frame * step < len(t):
         update_plot(frame)
-    else:
-        # Keep shifting the data buffer to the left
-        for j in range(num_channels):
-            data_buffer[j] = np.roll(data_buffer[j], -step)
-            lines[j].set_data(t[:window_size] / 1000, data_buffer[j])
-            subplots[j].set_xlim(t[0] / 1000, t[window_size - 1] / 1000)
-
-# Calculate the number of frames required for a minimum display duration of 10 seconds
-min_display_duration = 10  # Minimum display duration in seconds
-num_frames = int(min_display_duration * sampling_rate / step)
+        for subplot in subplots:
+            subplot.set_xlim(0, 20)  # Display a fixed 20-second window
 
 # Create an animation
-ani = FuncAnimation(plt.gcf(), animate, frames=num_frames, interval=50)
+ani = FuncAnimation(plt.gcf(), animate, frames=len(t) // step, interval=50)
 
 # Show the plot
 plt.tight_layout()

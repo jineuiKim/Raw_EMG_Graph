@@ -20,13 +20,15 @@ for i in range(num_channels):
     rms = np.sqrt(np.mean(dataset.iloc[500:1600,i+1]**2))
     rms_value.append(rms)
 
-plt.errorbar(x, rms_value, yerr=std_devs, marker='o', ## 라인 마커
-                 color='k', ## 라인 색상
-                 ecolor='r', ## 에러 바 라인 색상
-                 elinewidth=1, ## 에러 바 라인 두께
-                 capsize=3, ## 에러 바 양끝 막대 길이
-                 capthick=2, ## 에러 바 양끝 막대 두께
-            )
+plt.bar(x, rms_value, yerr=std_devs, capsize=5, align='center', alpha=0.7)
+
+#plt.errorbar(x, rms_value, yerr=std_devs, marker='o', ## 라인 마커
+                 #color='k', ## 라인 색상
+                 #ecolor='r', ## 에러 바 라인 색상
+                 #elinewidth=1, ## 에러 바 라인 두께
+                 #capsize=3, ## 에러 바 양끝 막대 길이
+                 #capthick=2, ## 에러 바 양끝 막대 두께
+            #)
 
 plt.xticks(x, channels)
 plt.xlabel('Channels')
