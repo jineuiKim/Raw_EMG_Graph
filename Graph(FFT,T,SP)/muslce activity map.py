@@ -7,7 +7,7 @@ dataset = np.random.rand(8, 8)  # An 8x8 grid of EMG values
 print(dataset)
 # Create a muscle activity map
 plt.figure(figsize=(8, 6))
-plt.imshow(dataset, cmap='viridis', interpolation='gaussian', aspect='auto')
+plt.imshow(dataset, cmap='viridis', interpolation='gaussian')
 plt.colorbar(label='EMG Intensity')
 plt.title('Muscle Activity Map')
 plt.xlabel('X-axis')

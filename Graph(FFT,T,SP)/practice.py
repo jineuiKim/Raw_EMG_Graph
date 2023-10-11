@@ -2,79 +2,53 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+from matplotlib.widgets import Button
 
 # Load your EMG data from a CSV file
-dataset = pd.read_csv("../raw_EMG.csv")
-# Extract the time values from the first column of the dataset
-t = dataset.iloc[:, 0]
+dataset = pd.read_csv("../emgraw.csv")
 
-# Define colors for different channels
-colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k', 'orange']
 
-# Extract EMG data for all channels
-num_channels = 8
-emg_data = dataset.iloc[:, 1:num_channels + 1] * 1000  # Amplify the data for plotting
+# Number of channels (assuming 8 channels)
 
-# Set the sampling rate (samples per second)
-sampling_rate = 1000
 
-# Create a figure for the plot
-plt.figure(figsize=(12, 12))
+# Define the layout of the subplots (adjust as needed)
+num_subplot_rows = 1
+num_subplot_cols = 1  # Adjusted to match 8 channels
 
-# Create subplots for each channel
-subplots = [plt.subplot(num_channels, 1, i + 1) for i in range(num_channels)]
+# Create a figure with subplots
+fig, axes = plt.subplots(num_subplot_rows, num_subplot_cols, figsize=(12, 6))
 
-# Initialize the lines in each subplot
-lines = [subplot.plot([], [], color=colors[i])[0] for i, subplot in enumerate(subplots)]
+# Initialize the images list
+images = []
 
-# Set titles and labels
-for i, subplot in enumerate(subplots):
-    subplot.set_title(f'Channel {i + 1}', loc='right', fontsize=10)
-    subplot.set_ylabel('Amplitude (uV)', fontsize=7)
+def update(i):
+    for j in range(1):
+        # Calculate the subplot row and column for the current channel
+        row = j // num_subplot_cols
+        col = j % num_subplot_cols
 
-# Adjust subplot spacing
-plt.subplots_adjust(hspace=0.3)
+        # Select the subplot
 
-# Set the x-axis label
-plt.xlabel('Time (s)')
 
-# Initialize data for each channel
-channel_data = [emg_data.iloc[:, i].values for i in range(num_channels)]
+        # Replace the data loading logic with your dataset
+        x = dataset.iloc[4400+i, j+1:j+9].values
+        image_data = (x - min(x)) / (max(x) - min(x))
+        image_data = image_data.reshape(2, 4)
+        if not images or len(images) <= j:
+            # If the images list is empty or not long enough, create a new image
+            im = plt.imshow(image_data, cmap='gnuplot2', interpolation='spline16')
+            images.append(im)
 
-# Function to update the plot with new data
-step = 100
-window_size = int(10 * sampling_rate)  # 20-second window size
-data_buffer = [np.zeros(window_size) for _ in range(num_channels)]  # Circular buffer
-max_x_limit = 60  # Extend the maximum x-axis limit to 20 seconds
+        else:
+            # Update the existing image with new data
+            images[j].set_data(image_data)
+            cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])  # Adjust the position and size as needed
+            cbar = fig.colorbar(images[0], cax=cbar_ax, label='Intensity')
 
-def update_plot(i):
-    start_index = i * step
-    end_index = start_index + window_size
+# Set the number of frames
+num_frames = 5300
+ani = FuncAnimation(fig, update, frames=num_frames, repeat=False, interval=200)
 
-    for j in range(num_channels):
-        data_buffer[j] = channel_data[j][start_index:end_index]  # Update buffer
-        lines[j].set_data(t[start_index:end_index] / 1000, data_buffer[j])
-        subplots[j].set_xlim(t[start_index] / 1000, t[end_index - 1] / 1000)
-        subplots[j].set_ylim(-1, 1)
 
-# Function to handle animation frame updates
-def animate(frame):
-    if frame * step + window_size < len(t):
-        update_plot(frame)
-    else:
-        # Keep shifting the data buffer to the left
-        for j in range(num_channels):
-            data_buffer[j] = np.roll(data_buffer[j], -step)
-            lines[j].set_data(t[:window_size] / 1000, data_buffer[j])
-            subplots[j].set_xlim(t[0] / 1000, t[window_size - 1] / 1000)
 
-# Calculate the number of frames required for a minimum display duration of 10 seconds
-min_display_duration = 10  # Minimum display duration in seconds
-num_frames = int(min_display_duration * sampling_rate / step)
-
-# Create an animation
-ani = FuncAnimation(plt.gcf(), animate, frames=num_frames, interval=50)
-
-# Show the plot
-plt.tight_layout()
 plt.show()

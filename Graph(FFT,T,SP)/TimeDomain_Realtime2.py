@@ -43,7 +43,7 @@ channel_data = [emg_data.iloc[:, i].values for i in range(num_channels)]
 
 # Function to update the plot with new data
 step = 100
-window_size = int(5 * sampling_rate)
+window_size = int(5 * sampling_rate) ## change the speed
 data_buffer = [np.zeros(window_size) for _ in range(num_channels)]  # Circular buffer
 max_x_limit = 1000  # Set the maximum x-axis limit to 20 seconds
 
